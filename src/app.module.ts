@@ -9,6 +9,7 @@ import IoRedis from 'ioredis';
 
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 const RedisStore = connectRedis(session);
 const redisClient = new IoRedis('redis://localhost:6379');
@@ -21,12 +22,13 @@ const redisClient = new IoRedis('redis://localhost:6379');
     HttpModule,
     UserModule,
     AuthModule,
+    GatewayModule,
   ],
   providers: [Logger],
   controllers: [],
 })
 export class AppModule implements NestModule {
-  /** Стратегия passport и Redis добавляются на этапе прероутинга,
+  /** Passport и Redis добавляются на этапе прероутинга,
    *  Чтобы в дальнейшем можно было писать EtE тесты.
    * */
   configure(consumer: MiddlewareConsumer) {
