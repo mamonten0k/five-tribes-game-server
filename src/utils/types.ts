@@ -18,6 +18,24 @@ export type FindUserOptions = {
   selectPassword?: boolean;
 };
 
+//Game-Service
+export type FindGameParams = {
+  username: string;
+};
+
+export type PlaceInQueueParams = {
+  username: string;
+};
+
+export type RetrieveGameDataParams = {
+  gameData: any;
+};
+
+export type UpdateGameStageDataParams = {
+  gameStage: any;
+  gameId: any;
+};
+
 type Param = {
   [key: string]: string;
 };

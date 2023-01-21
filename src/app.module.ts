@@ -1,4 +1,4 @@
-import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { CacheModule, Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 
@@ -11,13 +11,20 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
 import { GatewayModule } from './gateway/gateway.module';
 
-const RedisStore = connectRedis(session);
+const redisStore = connectRedis(session);
 const redisClient = new IoRedis('redis://localhost:6379');
+
+const client = new redisStore({ client: redisClient });
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      store: client as any,
+      url: 'redis://localhost:6379',
     }),
     HttpModule,
     UserModule,
@@ -35,14 +42,14 @@ export class AppModule implements NestModule {
     consumer
       .apply(
         session({
-          store: new RedisStore({ client: redisClient }),
+          store: client,
           secret: 'super-secret',
           resave: false,
           saveUninitialized: false,
           cookie: {
-            sameSite: true, // CORS enable
+            sameSite: true, // CORS
             httpOnly: false,
-            maxAge: 1800000, // 30 min
+            maxAge: 1800000, // 30 минут
           },
         }),
         passport.initialize(),

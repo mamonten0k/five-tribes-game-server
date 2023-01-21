@@ -1,6 +1,7 @@
 export const Routes = {
   AUTH: 'auth',
   USERS: 'users',
+  GAME: 'game',
 };
 
 export const Services = {

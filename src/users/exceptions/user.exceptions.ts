@@ -2,12 +2,12 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class UserFoundException extends HttpException {
   constructor() {
-    super('User already exists', HttpStatus.CONFLICT);
+    super('Пользователь с таким логином уже зарегистрирован', HttpStatus.CONFLICT);
   }
 }
 
 export class UserNotFoundException extends HttpException {
   constructor() {
-    super('User not found', HttpStatus.BAD_REQUEST);
+    super('Пользователь не найден', HttpStatus.BAD_REQUEST);
   }
 }

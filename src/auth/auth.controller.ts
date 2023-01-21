@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpStatus, Inject, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+
+import { Cache } from 'cache-manager';
 
 import { CreateUserDto } from './dtos/CreateUser.dto';
 import { AuthenticatedGuard, LocalAuthGuard } from './utils/Guards';

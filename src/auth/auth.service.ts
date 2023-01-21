@@ -14,9 +14,11 @@ export class AuthService implements IAuthService {
 
   async validateUser(params: UserCredentialsParams) {
     const credentials = await this.userService.findUser({ username: params.username });
-
     const isPasswordValid = await compareHash(params.password, credentials.password);
-    if (!isPasswordValid) throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
+
+    if (!isPasswordValid) {
+      throw new HttpException('Неверный логин или пароль.', HttpStatus.FORBIDDEN);
+    }
 
     return credentials;
   }
