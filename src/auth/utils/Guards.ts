@@ -1,19 +1,16 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-
-@Injectable()
-export class LocalAuthGuard extends AuthGuard('local') {
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const result = (await super.canActivate(context)) as boolean;
-    await super.logIn(context.switchToHttp().getRequest());
-    return result;
-  }
-}
+import { Inject } from '@nestjs/common/decorators';
+import { SessionService } from 'src/session/session.service';
+import { parseBearerHeader } from 'src/utils/helpers';
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
+  constructor(@Inject(SessionService) private sessionService: SessionService) {}
+
   async canActivate(context: ExecutionContext): Promise<any> {
     const req = context.switchToHttp().getRequest();
-    return req.isAuthenticated();
+    const token = parseBearerHeader(req);
+
+    return await this.sessionService.validateSession({ token });
   }
 }

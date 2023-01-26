@@ -1,4 +1,4 @@
-import { User } from './typeorm';
+import { User, Token } from './typeorm';
 
 export type FindUserParams = {
   username: string;
@@ -9,16 +9,34 @@ export type CreateUserParams = {
   password: string;
 };
 
+export type CreateSessionParams = {
+  username: string;
+  password: string;
+};
+
+export type CreateSessionResponse = {
+  response: Token;
+};
+
+export type ValidateSessionParams = {
+  token: string;
+};
+
 export type UserCredentialsParams = {
   username: string;
   password: string;
 };
 
+export interface Response<T> {
+  rejected: boolean;
+  error_message: string;
+  data: T;
+}
+
 export type FindUserOptions = {
   selectPassword?: boolean;
 };
 
-//Game-Service
 export type FindGameParams = {
   username: string;
 };

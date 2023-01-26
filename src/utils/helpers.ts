@@ -4,6 +4,16 @@ import { RequestConfig, ResponseData } from './types';
 import * as bcrypt from 'bcrypt';
 
 /**
+ * @name parseBearerHeader
+ * @descr Функция парсит запрос, достает из него токен
+ * @param req - запрос пришедший на сервер
+ */
+export function parseBearerHeader(req: any) {
+  const bearer = req.rawHeaders.filter((str: string) => str.startsWith('Bearer'))[0];
+  return bearer.split(' ')[1];
+}
+
+/**
  * @name hashPassword
  * @descr Функция принимает пароль строкой, хэширует его и возвращает пользователю
  * @param rawPassword - введенный пользователем пароль
@@ -58,11 +68,11 @@ export function responseToJson(response: ResponseData) {
 
   for (const entry of response.RESULTS) {
     for (const [key, value] of Object.entries(entry)) {
-      const parsed = rawJsonToJson(value[0]);
-      if (parsed) res[key] = parsed;
+      res[key] = value[0];
     }
   }
 
+  if (res['error_message']) res['rejected'] = true;
   return JSON.stringify(res) === '{}' ? undefined : res;
 }
 

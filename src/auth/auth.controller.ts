@@ -1,36 +1,25 @@
-import {
-  Body,
-  CACHE_MANAGER,
-  Controller,
-  Get,
-  HttpStatus,
-  Inject,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-
-import { Cache } from 'cache-manager';
+import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
 
 import { CreateUserDto } from './dtos/CreateUser.dto';
-import { AuthenticatedGuard, LocalAuthGuard } from './utils/Guards';
+import { AuthenticatedGuard } from './utils/Guards';
 
 import { Routes } from '../utils/constants';
-import { UserService } from '../users/user.service';
-import { IUserService } from '../users/user';
+import { AuthService } from './auth.service';
+import { IAuthService } from './auth';
+import { AuthorizeUserDto } from './dtos/AuthorizeUser.dto';
 
 @Controller(Routes.AUTH)
 export class AuthController {
-  constructor(@Inject(UserService) private userService: IUserService) {}
+  constructor(@Inject(AuthService) private authService: IAuthService) {}
 
   @Post('register')
   async registerUser(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.createUser(createUserDto);
+    return await this.authService.registerUser(createUserDto);
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
-  login() {
-    return HttpStatus.OK;
+  async login(@Body() authorizeUserDto: AuthorizeUserDto) {
+    return await this.authService.validateUser(authorizeUserDto);
   }
 
   @UseGuards(AuthenticatedGuard)

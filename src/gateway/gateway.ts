@@ -3,13 +3,17 @@ import {
   SubscribeMessage,
   MessageBody,
   WebSocketServer,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 
-import { Inject, OnModuleInit } from '@nestjs/common';
+import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { Cache } from 'cache-manager';
 
-import { IGameService } from 'src/game/game';
-import { GameService } from 'src/game/game.service';
+import { TaggedSocket } from 'src/utils/interfaces/socket';
+
+import { GatewaySessionManager, IGatewaySessionManager } from './gateway.session';
 
 @WebSocketGateway({
   cors: {
@@ -19,16 +23,24 @@ import { GameService } from 'src/game/game.service';
   pingInterval: 10000,
   pingTimeout: 15000,
 })
-export class Gateway implements OnModuleInit {
-  // constructor(@Inject(GameService) private gameService: IGameService) {}
+export class Gateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    @Inject(GatewaySessionManager) readonly sessions: IGatewaySessionManager,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
-  onModuleInit() {
-    this.server.on('connection', (socket) => {
-      console.log(socket.id);
-    });
+  async handleConnection(socket: TaggedSocket, ...args: any[]) {
+    const data = await this.cacheManager.get(socket.tag);
+    console.log(data, 'eat this', this.cacheManager.store.keys());
+    if (data) return;
+    await this.cacheManager.set(socket.tag, { res: '123' });
+  }
+
+  async handleDisconnect(socket: TaggedSocket) {
+    await this.cacheManager.get(socket.tag);
   }
 
   @SubscribeMessage('newMessage')
