@@ -42,7 +42,11 @@ export type FindGameParams = {
 };
 
 export type PlaceInQueueParams = {
-  username: string;
+  token: string;
+};
+
+export type GetStatusInQueueParams = {
+  token: string;
 };
 
 export type RetrieveGameDataParams = {
@@ -76,4 +80,8 @@ export type FindUserResponse = {
 
 export type СreateUserResponse = {
   credentials: User;
+};
+
+export type TaggedSocketParams = {
+  token: string;
 };

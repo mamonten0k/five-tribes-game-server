@@ -3,17 +3,20 @@ import {
   SubscribeMessage,
   MessageBody,
   WebSocketServer,
-  OnGatewayConnection,
   OnGatewayDisconnect,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 
-import { CACHE_MANAGER, Inject } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { Cache } from 'cache-manager';
 
 import { TaggedSocket } from 'src/utils/interfaces/socket';
 
 import { GatewaySessionManager, IGatewaySessionManager } from './gateway.session';
+import { TaggedSocketParams } from 'src/utils/types';
+
+import { IGameService } from 'src/game/game';
+import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway({
   cors: {
@@ -23,34 +26,34 @@ import { GatewaySessionManager, IGatewaySessionManager } from './gateway.session
   pingInterval: 10000,
   pingTimeout: 15000,
 })
-export class Gateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class Gateway implements OnGatewayDisconnect {
   constructor(
     @Inject(GatewaySessionManager) readonly sessions: IGatewaySessionManager,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(GameService) readonly gameService: IGameService,
   ) {}
 
   @WebSocketServer()
   server: Server;
 
-  async handleConnection(socket: TaggedSocket, ...args: any[]) {
-    const data = await this.cacheManager.get(socket.tag);
-    console.log(data, 'eat this', this.cacheManager.store.keys());
-    if (data) return;
-    await this.cacheManager.set(socket.tag, { res: '123' });
+  handleDisconnect(socket: TaggedSocket) {
+    this.sessions.removeUserSocket(socket.tag);
   }
 
-  async handleDisconnect(socket: TaggedSocket) {
-    await this.cacheManager.get(socket.tag);
+  @SubscribeMessage('newSocket')
+  onNewSocket(@MessageBody() body: TaggedSocketParams, @ConnectedSocket() socket: TaggedSocket) {
+    socket.tag = body.token;
+    this.sessions.setUserSocket(socket.tag, socket);
   }
 
-  @SubscribeMessage('newMessage')
-  onNewMessage(@MessageBody() body: any) {
-    console.log(body);
-    this.server.emit('onMessage', { msg: 'emitted' });
+  @SubscribeMessage('onNewGame')
+  async onNewGame(@ConnectedSocket() socket: TaggedSocket) {
+    try {
+      const result = await this.gameService.placeInQueue({ token: socket.tag });
+      // const result2 = await this.gameService.getStatusInQueue({ token: socket.tag });
+      console.log(result, 'wtf');
+    } catch (e) {
+      console.log(e);
+      socket.emit('onMessage', { msg: e.message });
+    }
   }
-
-  // @SubscribeMessage('findGame')
-  // onStartGame() {
-  //   this.gameService.findGame({ username: '123' });
-  // }
 }
