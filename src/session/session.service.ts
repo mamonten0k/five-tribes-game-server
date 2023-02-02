@@ -14,13 +14,21 @@ export class SessionService implements ISessionService {
 
   async validateSession(params: ValidateSessionParams): Promise<any> {
     const response = await this.sessionAPI.validateSession(params);
-    if (response.rejected) throw new SessionServerSideException(response.error_message);
+
+    if (response.rejected) {
+      throw new SessionServerSideException(response.error_message);
+    }
+
     return response;
   }
 
   async createSession(params: CreateSessionParams): Promise<any> {
     const response = await this.sessionAPI.createSession(params);
-    if (response.rejected) throw new SessionServerSideException(response.error_message);
+
+    if (response.rejected) {
+      throw new SessionServerSideException(response.error_message);
+    }
+
     return response;
   }
 }

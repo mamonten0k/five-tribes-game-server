@@ -21,7 +21,7 @@ export class DatabaseGameService {
     return this.httpService.post(process.env.DATABASE_LINK, {
       params: {
         db: process.env.DATABASE_ID,
-        pname: 'find_game',
+        pname: 'get_status_in_queue',
         p1: params.token,
       },
     });

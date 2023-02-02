@@ -39,21 +39,34 @@ export class Gateway implements OnGatewayDisconnect {
     this.sessions.removeUserSocket(socket.tag);
   }
 
-  @SubscribeMessage('newSocket')
-  onNewSocket(@MessageBody() body: TaggedSocketParams, @ConnectedSocket() socket: TaggedSocket) {
-    socket.tag = body.token;
-    this.sessions.setUserSocket(socket.tag, socket);
+  @SubscribeMessage('onNewSocket')
+  async onNewSocket(
+    @MessageBody() body: TaggedSocketParams,
+    @ConnectedSocket() socket: TaggedSocket,
+  ) {
+    if (!this.sessions.getUserSocket(body.token)) {
+      socket.tag = body.token;
+      this.sessions.setUserSocket(socket.tag, socket);
+    }
   }
 
-  @SubscribeMessage('onNewGame')
-  async onNewGame(@ConnectedSocket() socket: TaggedSocket) {
+  @SubscribeMessage('onPlaceInQueue')
+  async onPlaceInQueue(@ConnectedSocket() socket: TaggedSocket) {
     try {
       const result = await this.gameService.placeInQueue({ token: socket.tag });
-      // const result2 = await this.gameService.getStatusInQueue({ token: socket.tag });
-      console.log(result, 'wtf');
+      socket.emit('onSendStatusInQueue', { ...result });
     } catch (e) {
-      console.log(e);
-      socket.emit('onMessage', { msg: e.message });
+      socket.emit('onSendStatusInQueue', { error_message: e.message });
+    }
+  }
+
+  @SubscribeMessage('onStatusInQueue')
+  async onStatusInQueue(@ConnectedSocket() socket: TaggedSocket) {
+    try {
+      const result = await this.gameService.getStatusInQueue({ token: socket.tag });
+      socket.emit('onStatusInQueue', { data: result });
+    } catch (e) {
+      socket.emit('onStatusInQueue', { error_message: e.message });
     }
   }
 }

@@ -60,7 +60,7 @@ export function updateConfig(config: RequestInit, newConfig: RequestConfig) {
 
 /**
  * @name responseToJson
- * @descr Функция данные из базы данных на MySQL версии, меньшей 5.6, в JSON
+ * @descr Функция преобразует данные из базы данных на MySQL версии, меньшей 5.6, в JSON
  * @param response - Сырые данные из базы данных
  */
 export function responseToJson(response: ResponseData) {
@@ -77,10 +77,14 @@ export function responseToJson(response: ResponseData) {
 }
 
 /**
- * @name rawJsonToJson
- * @descr Функция чанк данных из базы данных на MySQL версии, меньшей 5.6, в JSON
- * @param string - Сырой JSON
+ * @name waitFor
+ * @descr Функция, позволяет вызвать задержку в асинхронных функциях
+ * @param timeout - время задержки
  */
-function rawJsonToJson(string: string) {
-  return string ? JSON.parse(string.replace(/&quot;/g, '"')) : undefined;
+export function waitFor(timeout: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('Timeout');
+    }, timeout);
+  });
 }

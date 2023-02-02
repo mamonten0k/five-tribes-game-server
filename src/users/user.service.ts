@@ -12,7 +12,11 @@ export class UserService implements IUserService {
 
   async createUser(params: CreateUserParams): Promise<any> {
     const response = await this.userAPI.createOne(params);
-    if (response.rejected) throw new UserServerSideException(response.error_message);
+
+    if (response.rejected) {
+      throw new UserServerSideException(response.error_message);
+    }
+
     return response;
   }
 }

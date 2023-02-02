@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { TaggedSocket } from '../utils/interfaces/socket';
 
 export interface IGatewaySessionManager {
-  getUserSocket(username: string): TaggedSocket;
-  setUserSocket(username: string, socket: TaggedSocket): void;
-  removeUserSocket(username: string): void;
+  getUserSocket(token: string): TaggedSocket;
+  setUserSocket(token: string, socket: TaggedSocket): void;
+  removeUserSocket(token: string): void;
   getSockets(): Map<string, TaggedSocket>;
 }
 
@@ -12,16 +12,16 @@ export interface IGatewaySessionManager {
 export class GatewaySessionManager implements IGatewaySessionManager {
   private readonly sessions: Map<string, TaggedSocket> = new Map();
 
-  getUserSocket(username: string) {
-    return this.sessions.get(username);
+  getUserSocket(token: string) {
+    return this.sessions.get(token);
   }
 
-  setUserSocket(username: string, socket: TaggedSocket) {
-    this.sessions.set(username, socket);
+  setUserSocket(token: string, socket: TaggedSocket) {
+    this.sessions.set(token, socket);
   }
 
-  removeUserSocket(username: string) {
-    this.sessions.delete(username);
+  removeUserSocket(token: string) {
+    this.sessions.delete(token);
   }
 
   getSockets(): Map<string, TaggedSocket> {
