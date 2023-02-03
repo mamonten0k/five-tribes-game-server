@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from 'src/shared/http.service';
 
-import { GetStatusInQueueParams, PlaceInQueueParams, Response } from 'src/utils/types';
+import {
+  GetStatusInQueueParams,
+  PlaceInQueueParams,
+  RemoveFromQueueParams,
+  Response,
+} from 'src/utils/types';
 
 @Injectable()
 export class DatabaseGameService {
@@ -12,6 +17,16 @@ export class DatabaseGameService {
       params: {
         db: process.env.DATABASE_ID,
         pname: 'place_in_queue',
+        p1: params.token,
+      },
+    });
+  }
+
+  removeFromQueue(params: RemoveFromQueueParams): Promise<Response<any>> {
+    return this.httpService.post(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'remove_from_queue',
         p1: params.token,
       },
     });

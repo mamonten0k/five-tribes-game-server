@@ -1,6 +1,7 @@
 import {
   GetStatusInQueueParams,
   PlaceInQueueParams,
+  RemoveFromQueueParams,
   RetrieveGameDataParams,
   UpdateGameStageDataParams,
 } from '../utils/types';

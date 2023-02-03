@@ -14,6 +14,7 @@ export class GameService implements IGameService {
     const result = await this.gameAPI.getStatusInQueue(params);
 
     if (result.rejected && retries === 0) {
+      await this.gameAPI.removeFromQueue(params);
       throw new GameServerSideException(result.error_message);
     }
 

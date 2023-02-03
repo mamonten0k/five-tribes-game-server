@@ -45,6 +45,10 @@ export type PlaceInQueueParams = {
   token: string;
 };
 
+export type RemoveFromQueueParams = {
+  token: string;
+};
+
 export type GetStatusInQueueParams = {
   token: string;
 };
