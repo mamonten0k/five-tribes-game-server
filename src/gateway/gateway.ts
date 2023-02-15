@@ -13,7 +13,7 @@ import { Server } from 'socket.io';
 import { TaggedSocket } from 'src/utils/interfaces/socket';
 
 import { GatewaySessionManager, IGatewaySessionManager } from './gateway.session';
-import { TaggedSocketParams } from 'src/utils/types';
+import { InititGameParams, TaggedSocketParams } from 'src/utils/types';
 
 import { IGameService } from 'src/game/game';
 import { GameService } from 'src/game/game.service';
@@ -36,37 +36,25 @@ export class Gateway implements OnGatewayDisconnect {
   server: Server;
 
   handleDisconnect(socket: TaggedSocket) {
+    console.log('should be around here');
     this.sessions.removeUserSocket(socket.tag);
   }
 
   @SubscribeMessage('onNewSocket')
-  async onNewSocket(
-    @MessageBody() body: TaggedSocketParams,
-    @ConnectedSocket() socket: TaggedSocket,
-  ) {
-    if (!this.sessions.getUserSocket(body.token)) {
-      socket.tag = body.token;
-      this.sessions.setUserSocket(socket.tag, socket);
-    }
+  onNewSocket(@MessageBody() body: TaggedSocketParams, @ConnectedSocket() socket: TaggedSocket) {
+    socket.tag = body.username;
+    this.sessions.setUserSocket(socket.tag, body.gameId, socket);
+    socket.emit('sendSocketTagged');
   }
 
-  @SubscribeMessage('onPlaceInQueue')
-  async onPlaceInQueue(@ConnectedSocket() socket: TaggedSocket) {
-    try {
-      const result = await this.gameService.placeInQueue({ token: socket.tag });
-      socket.emit('onSendStatusInQueue', { ...result });
-    } catch (e) {
-      socket.emit('onSendStatusInQueue', { error_message: e.message });
-    }
-  }
+  @SubscribeMessage('onInitGame')
+  async onInitGame(@MessageBody() body: InititGameParams, @ConnectedSocket() socket: TaggedSocket) {
+    const res = await this.gameService.getGameData({ ...body });
+    const rival = this.sessions.getUserSocket(res.rival);
 
-  @SubscribeMessage('onStatusInQueue')
-  async onStatusInQueue(@ConnectedSocket() socket: TaggedSocket) {
-    try {
-      const result = await this.gameService.getStatusInQueue({ token: socket.tag });
-      socket.emit('onStatusInQueue', { data: result });
-    } catch (e) {
-      socket.emit('onStatusInQueue', { error_message: e.message });
+    if (rival && rival.gameId === body.gameId) {
+      socket.emit('onRivalConnected');
+      rival.socket.emit('onRivalConnected');
     }
   }
 }

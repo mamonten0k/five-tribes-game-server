@@ -1,7 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { mergeParams, responseToJson } from 'src/utils/helpers';
-import { updateConfig } from 'src/utils/helpers';
-import { RequestConfig } from 'src/utils/types';
 
 import * as crypto from 'crypto';
 

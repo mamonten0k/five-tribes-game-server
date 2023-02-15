@@ -1,5 +1,5 @@
 import { URLSearchParams } from 'url';
-import { RequestConfig, ResponseData } from './types';
+import { GameGeneralInfo, RequestConfig, ResponseData, RowResponseData } from './types';
 
 import * as bcrypt from 'bcrypt';
 
@@ -59,16 +59,48 @@ export function updateConfig(config: RequestInit, newConfig: RequestConfig) {
 }
 
 /**
- * @name responseToJson
- * @descr Функция преобразует данные из базы данных на MySQL версии, меньшей 5.6, в JSON
+ * @name toJsonResponse
+ * @descr Функция парсит данные из базы данных на MySQL версии, меньшей 5.6, в удобоваримый JSON
  * @param response - Сырые данные из базы данных
  */
-export function responseToJson(response: ResponseData) {
+export function toJsonResponse(response: ResponseData) {
   const res = {};
 
   for (const entry of response.RESULTS) {
     for (const [key, value] of Object.entries(entry)) {
-      res[key] = value[0];
+      res[key] = value.length === 1 ? value[0] : [...value];
+    }
+  }
+
+  if (res['error_message']) res['rejected'] = true;
+  return JSON.stringify(res) === '{}' ? undefined : res;
+}
+
+/**
+ * @name rowsToJsonResponse
+ * @descr Функция парсит данные из базы данных на MySQL версии, меньшей 5.6, в удобоваримый JSON
+ * @param response - Сырые данные из базы данных, взятые по рядам
+ */
+export function rowsToJsonResponse(response: RowResponseData) {
+  const res = {};
+
+  for (const [entryKey, entryValue] of Object.entries(response.RESULTS)) {
+    for (const [key, value] of Object.entries(entryValue || [,])) {
+      if (!key || !value) {
+        continue;
+      }
+
+      if ('error_message' in value) {
+        res['error_message'] = value.error_message;
+        continue;
+      }
+
+      if (!res[`batch-${entryKey}`]) {
+        res[`batch-${entryKey}`] = [value];
+        continue;
+      }
+
+      res[`batch-${entryKey}`] = [...res[`batch-${entryKey}`], value];
     }
   }
 
@@ -87,4 +119,27 @@ export function waitFor(timeout: number) {
       resolve('Timeout');
     }, timeout);
   });
+}
+
+/**
+ * @name transformExistingGames
+ * @descr Костыль, получение данных, забранных столбцами
+ * @param games_raw - полученные игры {game_ids: [], players: [], timestamp: []}
+ */
+export function transformExistingGames(games_raw: any) {
+  const games = [];
+
+  while (games_raw.game_id.length) {
+    games.push({
+      id: games_raw.game_id.pop(),
+      rival: games_raw.player.pop(),
+      player: games_raw.player.pop(),
+      timestamp: games_raw.timestamp.pop(),
+    } as GameGeneralInfo);
+
+    games_raw.game_id.pop();
+    games_raw.timestamp.pop();
+  }
+
+  return { games };
 }

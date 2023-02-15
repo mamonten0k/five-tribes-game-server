@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { mergeParams, responseToJson } from 'src/utils/helpers';
+import { mergeParams, rowsToJsonResponse, toJsonResponse } from 'src/utils/helpers';
 import { updateConfig } from 'src/utils/helpers';
 import { RequestConfig } from 'src/utils/types';
 
@@ -32,7 +32,18 @@ export class HttpService {
 
     const response = await fetch(`${url}?${params}`, { ...this.#config, method: 'POST' })
       .then((response) => response.json())
-      .then((response) => responseToJson(response));
+      .then((response) => toJsonResponse(response));
+
+    return response;
+  }
+
+  async postRows(url: string, config: RequestConfig): Promise<any> {
+    const params = mergeParams(config.params || {});
+    updateConfig(this.#config, config);
+
+    const response = await fetch(`${url}?${params}`, { ...this.#config, method: 'POST' })
+      .then((response) => response.json())
+      .then((response) => rowsToJsonResponse(response));
 
     return response;
   }

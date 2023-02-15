@@ -18,10 +18,6 @@ export type CreateSessionResponse = {
   response: Token;
 };
 
-export type ValidateSessionParams = {
-  token: string;
-};
-
 export type UserCredentialsParams = {
   username: string;
   password: string;
@@ -41,17 +37,23 @@ export type FindGameParams = {
   username: string;
 };
 
-export type PlaceInQueueParams = {
+export type WithTokenParams = {
   token: string;
 };
 
-export type RemoveFromQueueParams = {
-  token: string;
-};
+export type PlaceInQueueParams = WithTokenParams;
 
-export type GetStatusInQueueParams = {
-  token: string;
-};
+export type RemoveFromQueueParams = WithTokenParams;
+
+export type GetStatusInQueueParams = WithTokenParams;
+
+export type GetExistingGamesParams = WithTokenParams;
+
+export type ValidateSessionParams = WithTokenParams;
+
+export interface GetGameDataParams extends WithTokenParams {
+  gameId: string;
+}
 
 export type RetrieveGameDataParams = {
   gameData: any;
@@ -74,8 +76,16 @@ type ResponseParam = {
   [key: string]: Array<string>;
 };
 
+type RowResponseParam = {
+  [key: string]: Array<string>;
+};
+
 export type ResponseData = {
   RESULTS: Array<ResponseParam>;
+};
+
+export type RowResponseData = {
+  RESULTS: Array<Array<RowResponseParam>>;
 };
 
 export type FindUserResponse = {
@@ -86,6 +96,23 @@ export type СreateUserResponse = {
   credentials: User;
 };
 
+export type GameGeneralInfo = {
+  id: string;
+  rival: string;
+  player: string;
+  timestamp: string;
+};
+
 export type TaggedSocketParams = {
+  username: string;
+  gameId: string;
+};
+
+export type InititGameParams = {
+  gameId: string;
   token: string;
 };
+
+export interface ExitGameParams extends WithTokenParams {
+  gameId: string;
+}
