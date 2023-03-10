@@ -4,6 +4,7 @@ import { AuthorizeUserDto } from './dtos/AuthorizeUser.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: IAuthService);
+    test(): Promise<string>;
     registerUser(createUserDto: CreateUserDto): Promise<any>;
     login(authorizeUserDto: AuthorizeUserDto): Promise<any>;
     status(): Promise<{

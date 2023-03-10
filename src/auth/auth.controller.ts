@@ -14,6 +14,12 @@ export class AuthController {
   constructor(@Inject(AuthService) private authService: IAuthService) {}
 
   @UsePipes(new CredentialsValidationPipe())
+  @Post('test')
+  async test() {
+    return 'JUST TESTING';
+  }
+
+  @UsePipes(new CredentialsValidationPipe())
   @Post('register')
   async registerUser(@Body() createUserDto: CreateUserDto) {
     return await this.authService.registerUser(createUserDto);

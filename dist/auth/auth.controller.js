@@ -24,6 +24,9 @@ let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
+    async test() {
+        return 'JUST TESTING';
+    }
     async registerUser(createUserDto) {
         return await this.authService.registerUser(createUserDto);
     }
@@ -34,6 +37,13 @@ let AuthController = class AuthController {
         return { session: true };
     }
 };
+__decorate([
+    (0, common_1.UsePipes)(new credentials_pipe_1.CredentialsValidationPipe()),
+    (0, common_1.Post)('test'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "test", null);
 __decorate([
     (0, common_1.UsePipes)(new credentials_pipe_1.CredentialsValidationPipe()),
     (0, common_1.Post)('register'),
