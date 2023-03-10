@@ -6,6 +6,10 @@ import {
   GetExistingGamesParams,
   GetGameDataParams,
   GetStatusInQueueParams,
+  GetTurnsDataParams,
+  HandleBetParams,
+  HandleBetResponse,
+  HandlePlaceChipParams,
   PlaceInQueueParams,
   RemoveFromQueueParams,
   Response,
@@ -67,13 +71,88 @@ export class DatabaseGameService {
     });
   }
 
+  getCurrentTurnData(params: GetGameDataParams): Promise<Response<any>> {
+    return this.httpService.postRows(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'get_current_turn_data',
+        p1: params.token,
+        p2: params.gameId,
+        format: 'rows',
+      },
+    });
+  }
+
   getGameData(params: GetGameDataParams): Promise<Response<any>> {
-    return this.httpService.post(process.env.DATABASE_LINK, {
+    return this.httpService.postRows(process.env.DATABASE_LINK, {
       params: {
         db: process.env.DATABASE_ID,
         pname: 'get_game_data',
         p1: params.token,
         p2: params.gameId,
+        format: 'rows',
+      },
+    });
+  }
+
+  getBetOptions(params: GetGameDataParams): Promise<Response<any>> {
+    return this.httpService.postRows(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'get_bet_options',
+        p1: params.token,
+        p2: params.gameId,
+        format: 'rows',
+      },
+    });
+  }
+
+  getTurnsData(params: GetTurnsDataParams): Promise<Response<any>> {
+    return this.httpService.postRows(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'get_turns_order',
+        p1: params.token,
+        p2: params.gameId,
+        format: 'rows',
+      },
+    });
+  }
+
+  handleBet(params: HandleBetParams): Promise<Response<HandleBetResponse>> {
+    return this.httpService.post(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'handle_bet',
+        p1: params.token,
+        p2: String(params.betId),
+        p3: params.gameId,
+      },
+    });
+  }
+
+  handlePlaceChip(params: HandlePlaceChipParams): Promise<Response<any>> {
+    return this.httpService.post(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'handle_place_chip',
+        p1: params.token,
+        p2: String(params.chipId),
+        p3: String(params.provinceId),
+        p4: params.gameId,
+      },
+    });
+  }
+
+  getUpdatedProvinces(params: HandlePlaceChipParams): Promise<Response<any>> {
+    return this.httpService.postRows(process.env.DATABASE_LINK, {
+      params: {
+        db: process.env.DATABASE_ID,
+        pname: 'get_updated_provinces',
+        p1: params.token,
+        p2: String(params.provinceId),
+        p3: params.gameId,
+        format: 'rows',
       },
     });
   }

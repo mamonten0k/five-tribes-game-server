@@ -73,9 +73,8 @@ export function toJsonResponse(response: ResponseData) {
   }
 
   if (res['error_message']) res['rejected'] = true;
-  return JSON.stringify(res) === '{}' ? undefined : res;
+  return Object.keys(res).length === 0 ? undefined : res;
 }
-
 /**
  * @name rowsToJsonResponse
  * @descr Функция парсит данные из базы данных на MySQL версии, меньшей 5.6, в удобоваримый JSON
@@ -105,7 +104,7 @@ export function rowsToJsonResponse(response: RowResponseData) {
   }
 
   if (res['error_message']) res['rejected'] = true;
-  return JSON.stringify(res) === '{}' ? undefined : res;
+  return Object.keys(res).length === 0 ? undefined : res;
 }
 
 /**

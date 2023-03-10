@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common/decorators';
-import { GameModule } from 'src/game/game.module';
+import { WSGameModule } from 'src/ws-game/ws-game.module';
 
 import { Gateway } from './gateway';
 import { GatewaySessionManager } from './gateway.session';
 
 @Module({
-  imports: [GameModule],
+  imports: [WSGameModule],
   providers: [Gateway, GatewaySessionManager],
 })
 export class GatewayModule {}

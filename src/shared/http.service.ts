@@ -41,10 +41,8 @@ export class HttpService {
     const params = mergeParams(config.params || {});
     updateConfig(this.#config, config);
 
-    const response = await fetch(`${url}?${params}`, { ...this.#config, method: 'POST' })
-      .then((response) => response.json())
-      .then((response) => rowsToJsonResponse(response));
-
-    return response;
+    const response = await fetch(`${url}?${params}`, { ...this.#config, method: 'POST' });
+    const data = await response.json();
+    return rowsToJsonResponse(data);
   }
 }

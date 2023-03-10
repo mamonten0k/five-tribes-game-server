@@ -3,9 +3,11 @@ import { GameSession, TaggedSocket } from '../utils/interfaces/socket';
 
 export interface IGatewaySessionManager {
   getUserSocket(username: string): GameSession;
+  getPlayers(gameID: string): Array<GameSession>;
   setUserSocket(username: string, gameId: string, socket: TaggedSocket): void;
   removeUserSocket(username: string): void;
   getSockets(): Map<string, GameSession>;
+  updateGameId(username: string, gameId: string): void;
 }
 
 @Injectable()
@@ -14,6 +16,12 @@ export class GatewaySessionManager implements IGatewaySessionManager {
 
   getUserSocket(username: string) {
     return this.sessions.get(username);
+  }
+
+  getPlayers(gameId: string) {
+    return Array.from(this.sessions)
+      .filter((session) => session[1].gameId === gameId)
+      .map((session) => session[1]);
   }
 
   setUserSocket(username: string, gameId: string, socket: TaggedSocket) {
@@ -26,5 +34,10 @@ export class GatewaySessionManager implements IGatewaySessionManager {
 
   getSockets(): Map<string, GameSession> {
     return this.sessions;
+  }
+
+  updateGameId(username: string, gameId: string) {
+    const res = this.getUserSocket(username);
+    res.gameId = gameId;
   }
 }

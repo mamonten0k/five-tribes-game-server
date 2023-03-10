@@ -55,6 +55,30 @@ export interface GetGameDataParams extends WithTokenParams {
   gameId: string;
 }
 
+export interface GetTurnsDataParams extends WithTokenParams {
+  gameId: string;
+}
+
+export interface HandleBetParams extends WithTokenParams {
+  gameId: string;
+  betId: number;
+}
+
+export interface GetBetOptionsParams extends WithTokenParams {
+  gameId: string;
+}
+
+export interface HandlePlaceChipParams extends WithTokenParams {
+  gameId: string;
+  provinceId: number;
+  chipId: number;
+  player: string;
+}
+
+export type HandleBetResponse = {
+  active_player: string;
+};
+
 export type RetrieveGameDataParams = {
   gameData: any;
 };

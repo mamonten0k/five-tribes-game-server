@@ -3,19 +3,35 @@ import { Injectable, Inject } from '@nestjs/common';
 import { GameServerSideException } from './excteptions/game.exceptions';
 import {
   ExitGameParams,
-  GetGameDataParams,
+  GetBetOptionsParams,
   GetStatusInQueueParams,
+  HandlePlaceChipParams,
   WithTokenParams,
 } from 'src/utils/types';
 
+import { Gateway } from 'src/gateway/gateway';
 import { DatabaseGameService } from 'src/database/database.game.service';
 
 import { IGameService } from './game';
 import { waitFor } from 'src/utils/helpers';
+import { HandleBetDto } from './dtos/HandleBet.dto';
 
 @Injectable()
 export class GameService implements IGameService {
-  constructor(@Inject(DatabaseGameService) private readonly gameAPI: DatabaseGameService) {}
+  constructor(
+    @Inject(DatabaseGameService) private readonly gameAPI: DatabaseGameService,
+    @Inject(Gateway) private readonly gateway: Gateway,
+  ) {}
+  async handlePlaceChip(params: HandlePlaceChipParams): Promise<any> {
+    const result = await this.gameAPI.handlePlaceChip(params);
+
+    if (result.rejected) {
+      throw new GameServerSideException(result.error_message);
+    }
+
+    this.gateway.onUpdateProvinces(params);
+    return result;
+  }
 
   async exitGame(params: ExitGameParams): Promise<any> {
     const result = await this.gameAPI.exitGame(params);
@@ -24,7 +40,18 @@ export class GameService implements IGameService {
       throw new GameServerSideException(result.error_message);
     }
 
+    this.gateway.onHandleExitGame(params);
     return result;
+  }
+
+  async hanleBet(params: HandleBetDto): Promise<any> {
+    const result = await this.gameAPI.handleBet(params);
+
+    if (result.rejected) {
+      throw new GameServerSideException(result.error_message);
+    }
+
+    this.gateway.onHandleBet(params);
   }
 
   async getExistingGames(params: WithTokenParams): Promise<any> {
@@ -37,14 +64,14 @@ export class GameService implements IGameService {
     return { games: result['batch-0'] };
   }
 
-  async getGameData(params: GetGameDataParams): Promise<any> {
-    const result = await this.gameAPI.getGameData(params);
+  async getBetOptions(params: GetBetOptionsParams): Promise<any> {
+    const result = await this.gameAPI.getBetOptions(params);
 
     if (result.rejected) {
       throw new GameServerSideException(result.error_message);
     }
 
-    return result;
+    return { playersCoins: result['batch-0'], betOptions: result['batch-1'] };
   }
 
   async getStatusInQueue(params: GetStatusInQueueParams, retries = 3) {
@@ -71,13 +98,5 @@ export class GameService implements IGameService {
     }
 
     return result;
-  }
-
-  async retrieveGameData() {
-    return Promise<null>;
-  }
-
-  async updateGameStage() {
-    return 0;
   }
 }

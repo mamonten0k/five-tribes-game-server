@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { SessionModule } from './session/session.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SessionModule } from './session/session.module';
     SessionModule,
     AuthModule,
     GatewayModule,
+    GameModule,
   ],
   providers: [Logger],
   controllers: [],
